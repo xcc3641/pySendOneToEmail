@@ -1,0 +1,105 @@
+# -*- coding: utf-8 -*-
+__author__ = 'XieCC'
+'''
+#qq
+smtp.qq.com
+#163
+smtp.163.com
+#gmail
+smtp.gmail.com
+#126
+smtp.126.com
+'''
+
+
+from email.mime.multipart import MIMEMultipart
+from email.header import Header
+from email.mime.text import MIMEText
+from email.utils import parseaddr, formataddr
+
+import smtplib
+import requests
+from bs4 import BeautifulSoup
+import time
+import sys
+
+reload(sys)
+sys.setdefaultencoding("utf-8")
+# 常量
+from_addr = '****'
+password = '****'
+to_addr = ['****', '****']
+smtp_server = 'smtp.163.com'
+url = 'http://wufazhuce.com/'
+
+# 标记
+isSent = False;
+
+# 编码转换方法
+def _format_addr(s):
+	name, addr = parseaddr(s)
+	return formataddr(( \
+						  Header(name, 'utf-8').encode(), \
+						  addr.encode('utf-8') if isinstance(addr, unicode) else addr))
+
+
+# 邮件方法
+def sendEmail(text, img, title, story, to_addr):
+	msg = MIMEMultipart()
+
+	msg['From'] = _format_addr(u'Xie CC <%s>' % from_addr)
+	msg['To'] = _format_addr(u'管理员 <%s>' % to_addr)
+	msg['Subject'] = Header(u'The One    ' + title, 'utf-8').encode()
+
+	msg.attach(MIMEText('<html><body><div style="text-align: center;"><p><img src="' + img + '"></p></div>' +
+						'<p style="text-align:center;\"> <br /><br /><strong><span style="font-size:14px; text-align: center;\">' + text +
+						'</span></p><br /><br /><br /><br /><br />' +story +'</body></html>',
+						'html', 'utf-8'))
+
+	server = smtplib.SMTP(smtp_server, 25)
+	server.set_debuglevel(1)
+	server.login(from_addr, password)
+	server.sendmail(from_addr, [to_addr], msg.as_string())
+	server.quit()
+
+
+def http(url):
+	html = requests.get(url).text
+
+	soup_main = BeautifulSoup(html)
+	# "一个"的文字
+	div = soup_main.find_all("div", {"class": "fp-one-cita"})
+	text = div[0].a.text
+	# print(text)
+
+	# “一个”的图片地址
+	img_list = soup_main.find_all("img", {"class": "fp-one-imagen"})
+	imgUrl = img_list[0].get('src')
+	# print(imgUrl)
+
+	# "一个"的标题
+	title_list = soup_main.find_all("p", {"class": "titulo"})
+	title = str(title_list[0].text)
+	print(title)
+
+
+
+	# “一个”的文章vol.1132#articulo'
+	url_stroy = 'http://wufazhuce.com/one/' + title + '#articulo'
+
+
+	soup_stroy = BeautifulSoup(requests.get(url_stroy).text)
+	stroy_content = str(soup_stroy.find("div", {"class": "articulo-contenido"}))
+
+	stroy_title = str(soup_stroy.find("h2", {"class": "articulo-titulo"}))
+
+	stroy = stroy_title + stroy_content
+
+	for addr in to_addr:
+		sendEmail(text, imgUrl, title, stroy, addr)
+
+
+http(url)
+exit()
+
+
