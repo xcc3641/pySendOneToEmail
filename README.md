@@ -16,7 +16,7 @@
 1.加入需要执行的脚本
 ```
    crontab -e
-   * * * * * 路径/python 路径/xxx.py
+   1 22 * * * 路径/python 路径/xxx.py
    保存重启 /etc/init.d/cron restart
 ```
 2.Python最好写全路径，这是一个坑
