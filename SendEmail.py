@@ -22,13 +22,14 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import sys
+from lxml import etree
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
 # 常量
-from_addr = '****'
-password = '****'
-to_addr = ['****', '****']
+from_addr = 'xcc3641@163.com'
+password = '66640013'
+to_addr = ['446022570@qq.com', '1024344194@qq.com']
 smtp_server = 'smtp.163.com'
 url = 'http://wufazhuce.com/'
 
@@ -66,6 +67,10 @@ def sendEmail(text, img, title, story, to_addr):
 def http(url):
 	html = requests.get(url).text
 
+	page = etree.HTML(html.lower().decode("utf-8"))
+	# print(page)
+
+
 	soup_main = BeautifulSoup(html)
 	# "一个"的文字
 	div = soup_main.find_all("div", {"class": "fp-one-cita"})
@@ -83,12 +88,16 @@ def http(url):
 	print(title)
 
 
+	# title = title.replace("VOL.","")
+	# # “一个”的文章vol.1132#articulo'
+	# url_stroy = 'http://wufazhuce.com/ariticle/' + title
+	# # http://wufazhuce.com/article/1326
 
-	# “一个”的文章vol.1132#articulo'
-	url_stroy = 'http://wufazhuce.com/one/' + title + '#articulo'
+	# 得到文章的地址 用Xpath方法
+	url_story = page.xpath("//*[@id=\"main-container\"]/div[1]/div[2]/div/div/div[1]/div/p[2]/a/@href")
+	print(url_story[0])
 
-
-	soup_stroy = BeautifulSoup(requests.get(url_stroy).text)
+	soup_stroy = BeautifulSoup(requests.get(url_story[0]).text)
 	stroy_content = str(soup_stroy.find("div", {"class": "articulo-contenido"}))
 
 	stroy_title = str(soup_stroy.find("h2", {"class": "articulo-titulo"}))
