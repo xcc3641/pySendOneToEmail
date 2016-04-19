@@ -28,7 +28,7 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 # 常量
 from_addr = 'xcc3641@163.com'
-password = '66640013'
+password = '******'
 to_addr = ['', '']
 smtp_server = 'smtp.163.com'
 url = 'http://wufazhuce.com/'
